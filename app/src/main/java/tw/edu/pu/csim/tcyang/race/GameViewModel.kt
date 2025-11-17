@@ -7,9 +7,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import tw.edu.pu.csim.tcyang.race.ui.theme.Horse
 
 class GameViewModel: ViewModel() {
-
+    var winner by mutableStateOf(0)
+        private set
     var screenWidthPx by mutableStateOf(0f)
         private set
 
@@ -30,32 +32,44 @@ class GameViewModel: ViewModel() {
         screenHeightPx = h
     }
 
+    // val horse = Horse()
+    val horses = mutableListOf<Horse>()
+
+    fun MoveCircle(dx: Float, dy: Float) {
+        circleX += dx
+        circleY += dy
+    }
+
     fun StartGame() {
-        //回到初使位置
+        // 回到初使位置
         circleX = 100f
         circleY = screenHeightPx - 100f
+
+        for (i in 0..2) {
+            horses.add(Horse(i))
+        }
+
         score = 0
         gameRunning = true
 
         viewModelScope.launch {
-            while (gameRunning) { // 每0.1秒循環
-                delay(100)
-                circleX += 10
+            while (gameRunning) { // 每 0.1 秒循環
+                for (i in 0..2) {
+                    horses[i].HorseRun()
 
-                if (circleX >= screenWidthPx - 100){
-                    score +=1
-                    circleX = 100f
+                    if (horses[i].horseX >= screenWidthPx - 200) {
+                        horses[i].horseX = 0
+                    }
+
+                    delay(100)
+                    circleX += 10
+
+                    if (circleX >= screenWidthPx - 100) {
+                        score += 1
+                        circleX = 100f
+                    }
                 }
             }
         }
     }
-
-    fun MoveCircle(x: Float, y: Float) {
-        circleX += x
-        circleY += y
-    }
-
-
-
-
 }
